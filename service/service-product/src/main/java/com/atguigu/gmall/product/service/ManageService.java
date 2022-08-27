@@ -59,4 +59,6 @@ public interface ManageService {
      * @return
      */
     List<BaseAttrValue> getAttrValueList(Long attrId);
+
+    BaseAttrInfo getAttrInfo(Long attrId);
 }

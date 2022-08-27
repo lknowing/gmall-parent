@@ -17,6 +17,7 @@ import java.util.List;
  */
 @RestController //组合注解 @ResponseBody a. 返回JSON数据 b. 能将数据直接展示到页面上
 @RequestMapping("admin/product/")
+@CrossOrigin
 public class ManageController {
     @Autowired
     private ManageService manageService;
@@ -90,8 +91,9 @@ public class ManageController {
     // /admin/product/getAttrValueList/{attrId}
     @GetMapping("getAttrValueList/{attrId}")
     public Result getAttrValueList(@PathVariable Long attrId) {
-        List<BaseAttrValue> baseAttrValueList = this.manageService.getAttrValueList(attrId);
-        return Result.ok(baseAttrValueList);
+        //List<BaseAttrValue> baseAttrValueList = this.manageService.getAttrValueList(attrId);
+        BaseAttrInfo baseAttrInfo = this.manageService.getAttrInfo(attrId);
+        return Result.ok(baseAttrInfo.getAttrValueList());
     }
 
 }

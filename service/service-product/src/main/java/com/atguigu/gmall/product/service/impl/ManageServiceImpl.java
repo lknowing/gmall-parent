@@ -4,13 +4,11 @@ import com.atguigu.gmall.model.product.*;
 import com.atguigu.gmall.product.mapper.*;
 import com.atguigu.gmall.product.service.ManageService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import org.checkerframework.checker.units.qual.A;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -68,6 +66,10 @@ public class ManageServiceImpl implements ManageService {
         if (baseAttrInfo.getId() != null) {
             //修改
             baseAttrInfoMapper.updateById(baseAttrInfo);
+
+            QueryWrapper<BaseAttrValue> baseAttrValueQueryWrapper = new QueryWrapper<>();
+            baseAttrValueQueryWrapper.eq("attr_id", baseAttrInfo.getId());
+            baseAttrValueMapper.delete(baseAttrValueQueryWrapper);
         } else {
             //新增
             baseAttrInfoMapper.insert(baseAttrInfo);
@@ -88,6 +90,18 @@ public class ManageServiceImpl implements ManageService {
         QueryWrapper<BaseAttrValue> baseAttrValueQueryWrapper = new QueryWrapper<>();
         baseAttrValueQueryWrapper.eq("attr_id", attrId);
         return baseAttrValueMapper.selectList(baseAttrValueQueryWrapper);
+    }
+
+    @Override
+    public BaseAttrInfo getAttrInfo(Long attrId) {
+        BaseAttrInfo baseAttrInfo = null;
+        try {
+            baseAttrInfo = this.baseAttrInfoMapper.selectById(attrId);
+            baseAttrInfo.setAttrValueList(this.getAttrValueList(attrId));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return baseAttrInfo;
     }
 
 
