@@ -17,7 +17,7 @@ import java.util.List;
  */
 @RestController //组合注解 @ResponseBody a. 返回JSON数据 b. 能将数据直接展示到页面上
 @RequestMapping("admin/product/")
-@CrossOrigin
+//@CrossOrigin
 public class ManageController {
     @Autowired
     private ManageService manageService;

@@ -16,4 +16,11 @@
     <name>service-product</name>
     <description>service-product</description>
 
+    <dependencies>
+        <dependency>
+            <groupId>io.minio</groupId>
+            <artifactId>minio</artifactId>
+            <version>8.2.0</version>
+        </dependency>
+    </dependencies>
 </project>

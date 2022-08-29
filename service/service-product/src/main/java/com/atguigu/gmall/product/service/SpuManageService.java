@@ -1,8 +1,11 @@
 package com.atguigu.gmall.product.service;
 
+import com.atguigu.gmall.model.product.BaseSaleAttr;
 import com.atguigu.gmall.model.product.SpuInfo;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+
+import java.util.List;
 
 /**
  * title:
@@ -20,4 +23,18 @@ public interface SpuManageService {
      * @return
      */
     IPage<SpuInfo> getSpuInfoPage(Page<SpuInfo> spuInfoPage, SpuInfo spuInfo);
+
+    /**
+     * 制作SPU的时候提前获取全部销售属性列表
+     *
+     * @return
+     */
+    List<BaseSaleAttr> getBaseSaleAttrList();
+
+    /**
+     * 保存SPU
+     *
+     * @param spuInfo
+     */
+    void saveSpuInfo(SpuInfo spuInfo);
 }

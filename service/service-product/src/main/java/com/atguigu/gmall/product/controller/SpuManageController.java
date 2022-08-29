@@ -1,15 +1,15 @@
 package com.atguigu.gmall.product.controller;
 
 import com.atguigu.gmall.common.result.Result;
+import com.atguigu.gmall.model.product.BaseSaleAttr;
 import com.atguigu.gmall.model.product.SpuInfo;
 import com.atguigu.gmall.product.service.SpuManageService;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 /**
  * title:
@@ -33,4 +33,19 @@ public class SpuManageController {
         IPage<SpuInfo> spuInfoIPage = spuManageService.getSpuInfoPage(spuInfoPage, spuInfo);
         return Result.ok(spuInfoIPage);
     }
+
+    // /admin/product/baseSaleAttrList
+    @GetMapping("baseSaleAttrList")
+    public Result getBaseSaleAttrList() {
+        List<BaseSaleAttr> baseSaleAttrList = spuManageService.getBaseSaleAttrList();
+        return Result.ok(baseSaleAttrList);
+    }
+
+    // /admin/product/saveSpuInfo
+    @PostMapping("saveSpuInfo")
+    public Result saveSpuInfo(@RequestBody SpuInfo spuInfo) {
+        spuManageService.saveSpuInfo(spuInfo);
+        return Result.ok();
+    }
+
 }
