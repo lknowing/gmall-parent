@@ -20,4 +20,25 @@ public interface SkuManageService {
      * @return
      */
     IPage<SkuInfo> getSkuInfoPage(Page<SkuInfo> skuInfoPage, SkuInfo skuInfo);
+
+    /**
+     * 保存sku
+     *
+     * @param skuInfo
+     */
+    void saveSkuInfo(SkuInfo skuInfo);
+
+    /**
+     * 上架
+     *
+     * @param skuId
+     */
+    void onSale(Long skuId);
+
+    /**
+     * 下架
+     *
+     * @param skuId
+     */
+    void cancelSale(Long skuId);
 }

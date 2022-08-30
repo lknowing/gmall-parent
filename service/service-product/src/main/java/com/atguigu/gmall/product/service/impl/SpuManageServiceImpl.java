@@ -54,7 +54,7 @@ public class SpuManageServiceImpl implements SpuManageService {
     }
 
     @Override
-    @Transactional(rollbackFor = Exception.class)
+    @Transactional(rollbackFor = Exception.class) //多表操作加事务
     public void saveSpuInfo(SpuInfo spuInfo) {
         //插入spu_info表
         this.spuInfoMapper.insert(spuInfo);
@@ -93,6 +93,18 @@ public class SpuManageServiceImpl implements SpuManageService {
             });
         }
 
+    }
+
+    @Override
+    public List<SpuImage> getSpuImageList(Long spuId) {
+        QueryWrapper<SpuImage> spuImageQueryWrapper = new QueryWrapper<>();
+        spuImageQueryWrapper.eq("spu_id", spuId);
+        return spuImageMapper.selectList(spuImageQueryWrapper);
+    }
+
+    @Override
+    public List<SpuSaleAttr> getSpuSaleAttrList(Long spuId) {
+        return spuSaleAttrMapper.getSpuSaleAttrList(spuId);
     }
 
 }
