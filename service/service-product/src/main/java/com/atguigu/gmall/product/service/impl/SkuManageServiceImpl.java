@@ -62,10 +62,18 @@ public class SkuManageServiceImpl implements SkuManageService {
     @Override
     public SkuInfo getSkuInfo(Long skuId) {
         SkuInfo skuInfo = skuInfoMapper.selectById(skuId);
+
         QueryWrapper<SkuImage> skuImageQueryWrapper = new QueryWrapper<>();
         skuImageQueryWrapper.eq("sku_id", skuId);
         List<SkuImage> skuImageList = skuImageMapper.selectList(skuImageQueryWrapper);
         skuInfo.setSkuImageList(skuImageList);
+
+        List<SkuAttrValue> skuAttrValueList = skuAttrValueMapper.getSkuAttrValueList(skuId);
+        skuInfo.setSkuAttrValueList(skuAttrValueList);
+
+        List<SkuSaleAttrValue> skuSaleAttrValueList = skuSaleAttrValueMapper.getSkuSaleAttrValueList(skuId);
+        skuInfo.setSkuSaleAttrValueList(skuSaleAttrValueList);
+
         return skuInfo;
     }
 
@@ -106,9 +114,29 @@ public class SkuManageServiceImpl implements SkuManageService {
     @Transactional(rollbackFor = Exception.class)
     public void saveSkuInfo(SkuInfo skuInfo) {
         // 修改数据需要判断是否为空，新增不需要
-        // 插入一条数据之后，能够获取到这条数据对应的主键值！
-        // sku_info
-        this.skuInfoMapper.insert(skuInfo);
+        if (skuInfo != null) {
+            // 修改
+            this.skuInfoMapper.updateById(skuInfo);
+            // 获取sku_id
+            Long skuInfoId = skuInfo.getId();
+            // sku_image
+            QueryWrapper<SkuImage> skuImageQueryWrapper = new QueryWrapper<>();
+            skuImageQueryWrapper.eq("sku_id", skuInfoId);
+            skuImageMapper.delete(skuImageQueryWrapper);
+            // sku_attr_value
+            QueryWrapper<SkuAttrValue> skuAttrValueQueryWrapper = new QueryWrapper<>();
+            skuAttrValueQueryWrapper.eq("sku_id", skuInfoId);
+            skuAttrValueMapper.delete(skuAttrValueQueryWrapper);
+            // sku_sale_attr_value
+            QueryWrapper<SkuSaleAttrValue> skuSaleAttrValueQueryWrapper = new QueryWrapper<>();
+            skuSaleAttrValueQueryWrapper.eq("sku_id", skuInfoId);
+            skuSaleAttrValueMapper.delete(skuSaleAttrValueQueryWrapper);
+        } else {
+            // 新增
+            // 插入一条数据之后，能够获取到这条数据对应的主键值！
+            // sku_info
+            this.skuInfoMapper.insert(skuInfo);
+        }
         Long skuInfoId = skuInfo.getId();
         // sku_image
         List<SkuImage> skuImageList = skuInfo.getSkuImageList();

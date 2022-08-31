@@ -81,4 +81,11 @@ public class SkuManageController {
         return Result.ok(skuInfo);
     }
 
+    // updateSkuInfo
+    @PostMapping("updateSkuInfo")
+    public Result updateSkuInfo(@RequestBody SkuInfo skuInfo) {
+        skuManageService.saveSkuInfo(skuInfo);
+        return Result.ok();
+    }
+
 }

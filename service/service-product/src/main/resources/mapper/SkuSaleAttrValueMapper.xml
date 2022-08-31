@@ -17,4 +17,24 @@
         group by sav.sku_id
     </select>
 
+    <resultMap id="SkuSaleAttrValueMaps" type="com.atguigu.gmall.model.product.SkuSaleAttrValue" autoMapping="true">
+        <id property="id" column="id"/>
+    </resultMap>
+
+    <select id="getSkuSaleAttrValueList" resultMap="SkuSaleAttrValueMaps">
+        select ssav.id,
+               ssav.sku_id,
+               ssav.spu_id,
+               ssav.sale_attr_value_id,
+               sav.base_sale_attr_id,
+               sav.sale_attr_value_name,
+               sav.sale_attr_name
+        from sku_sale_attr_value ssav
+                 inner join spu_sale_attr_value sav
+                            on ssav.spu_id = sav.spu_id and ssav.sale_attr_value_id = sav.id
+        where ssav.sku_id = #{skuId}
+          and ssav.is_deleted = 0
+          and sav.is_deleted = 0
+    </select>
+
 </mapper>
