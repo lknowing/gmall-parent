@@ -3,6 +3,7 @@ package com.atguigu.gmall.product.controller;
 import com.atguigu.gmall.common.result.Result;
 import com.atguigu.gmall.model.product.SkuInfo;
 import com.atguigu.gmall.model.product.SpuImage;
+import com.atguigu.gmall.model.product.SpuInfo;
 import com.atguigu.gmall.model.product.SpuSaleAttr;
 import com.atguigu.gmall.product.service.SkuManageService;
 import com.atguigu.gmall.product.service.SpuManageService;
@@ -72,4 +73,12 @@ public class SkuManageController {
         skuManageService.cancelSale(skuId);
         return Result.ok();
     }
+
+    // /admin/product/getSkuInfo/23
+    @GetMapping("getSkuInfo/{skuId}")
+    public Result getSkuInfo(@PathVariable Long skuId) {
+        SkuInfo skuInfo = skuManageService.getSkuInfo(skuId);
+        return Result.ok(skuInfo);
+    }
+
 }

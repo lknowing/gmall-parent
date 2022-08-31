@@ -1,11 +1,9 @@
 package com.atguigu.gmall.product.service;
 
-import com.atguigu.gmall.model.product.BaseSaleAttr;
-import com.atguigu.gmall.model.product.SpuImage;
-import com.atguigu.gmall.model.product.SpuInfo;
-import com.atguigu.gmall.model.product.SpuSaleAttr;
+import com.atguigu.gmall.model.product.*;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.baomidou.mybatisplus.extension.service.IService;
 
 import java.util.List;
 
@@ -16,7 +14,7 @@ import java.util.List;
  * @Date 2022/08/27 18:26
  * @FileName: SpuManageService
  */
-public interface SpuManageService {
+public interface SpuManageService extends IService<SpuInfo> {
     /**
      * 根据三级分类id查询spu分页列表对象
      *
@@ -34,7 +32,7 @@ public interface SpuManageService {
     List<BaseSaleAttr> getBaseSaleAttrList();
 
     /**
-     * 保存SPU
+     * 保存或者修改SPU
      *
      * @param spuInfo
      */
@@ -55,4 +53,29 @@ public interface SpuManageService {
      * @return
      */
     List<SpuSaleAttr> getSpuSaleAttrList(Long spuId);
+
+    /**
+     * 根据spuId回显spuInfo信息
+     *
+     * @param spuId
+     * @return
+     */
+    SpuInfo getSpuInfo(Long spuId);
+
+    /**
+     * 根据skuId和spuId获取SPU销售属性及销售属性值集合
+     *
+     * @param skuId
+     * @param spuId
+     * @return
+     */
+    List<SpuSaleAttr> getSpuSaleAttrListCheckBySku(Long skuId, Long spuId);
+
+    /**
+     * 根据spuId获取海报数据
+     *
+     * @param spuId
+     * @return
+     */
+    List<SpuPoster> findSpuPosterBySpuId(Long spuId);
 }

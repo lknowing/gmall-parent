@@ -36,6 +36,9 @@ public class ManageServiceImpl implements ManageService {
     @Autowired
     private BaseAttrValueMapper baseAttrValueMapper;
 
+    @Autowired
+    private BaseCategoryViewMapper baseCategoryViewMapper;
+
     @Override
     public List<BaseCategory1> getCategory1() {
         return baseCategory1Mapper.selectList(null);
@@ -102,6 +105,17 @@ public class ManageServiceImpl implements ManageService {
             e.printStackTrace();
         }
         return baseAttrInfo;
+    }
+
+    @Override
+    public BaseCategoryView getCategoryView(Long category3Id) {
+        BaseCategoryView baseCategoryView = baseCategoryViewMapper.selectById(category3Id);
+        return baseCategoryView;
+    }
+
+    @Override
+    public List<BaseAttrInfo> getAttrList(Long skuId) {
+        return baseAttrInfoMapper.selectBaseAttrInfoListBySkuId(skuId);
     }
 
 

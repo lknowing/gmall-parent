@@ -60,5 +60,27 @@ public interface ManageService {
      */
     List<BaseAttrValue> getAttrValueList(Long attrId);
 
+    /**
+     * 根据属性Id获取属性值集合
+     *
+     * @param attrId
+     * @return
+     */
     BaseAttrInfo getAttrInfo(Long attrId);
+
+    /**
+     * 根据spuId获取分类数据
+     *
+     * @param category3Id
+     * @return
+     */
+    BaseCategoryView getCategoryView(Long category3Id);
+
+    /**
+     * 通过skuId 集合来查询平台属性数据
+     *
+     * @param skuId
+     * @return
+     */
+    List<BaseAttrInfo> getAttrList(Long skuId);
 }

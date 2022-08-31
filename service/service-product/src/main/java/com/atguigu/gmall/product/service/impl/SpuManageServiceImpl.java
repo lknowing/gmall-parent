@@ -6,6 +6,7 @@ import com.atguigu.gmall.product.service.SpuManageService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,7 +22,7 @@ import java.util.List;
  * @FileName: SpuManageServiceImpl
  */
 @Service
-public class SpuManageServiceImpl implements SpuManageService {
+public class SpuManageServiceImpl extends ServiceImpl<SpuInfoMapper, SpuInfo> implements SpuManageService {
     @Autowired
     private SpuInfoMapper spuInfoMapper;
 
@@ -56,8 +57,31 @@ public class SpuManageServiceImpl implements SpuManageService {
     @Override
     @Transactional(rollbackFor = Exception.class) //多表操作加事务
     public void saveSpuInfo(SpuInfo spuInfo) {
-        //插入spu_info表
-        this.spuInfoMapper.insert(spuInfo);
+        if (spuInfo.getId() != null) {
+            // 修改
+            this.spuInfoMapper.updateById(spuInfo);
+
+            // spu_image
+            QueryWrapper<SpuImage> spuImageQueryWrapper = new QueryWrapper<>();
+            spuImageQueryWrapper.eq("spu_id", spuInfo.getId());
+            spuImageMapper.delete(spuImageQueryWrapper);
+            // spu_poster
+            QueryWrapper<SpuPoster> spuPosterQueryWrapper = new QueryWrapper<>();
+            spuPosterQueryWrapper.eq("spu_id", spuInfo.getId());
+            spuPosterMapper.delete(spuPosterQueryWrapper);
+            // spu_sale_attr
+            QueryWrapper<SpuSaleAttr> spuSaleAttrQueryWrapper = new QueryWrapper<>();
+            spuSaleAttrQueryWrapper.eq("spu_id", spuInfo.getId());
+            spuSaleAttrMapper.delete(spuSaleAttrQueryWrapper);
+            // spu_sale_attr_value
+            QueryWrapper<SpuSaleAttrValue> spuSaleAttrValueQueryWrapper = new QueryWrapper<>();
+            spuSaleAttrValueQueryWrapper.eq("spu_id", spuInfo.getId());
+            spuSaleAttrValueMapper.delete(spuSaleAttrValueQueryWrapper);
+        } else {
+            // 新增
+            //插入spu_info表
+            this.spuInfoMapper.insert(spuInfo);
+        }
         Long spuInfoId = spuInfo.getId();
         //插入spu_image表，需要spu_id
         List<SpuImage> spuImageList = spuInfo.getSpuImageList();
@@ -105,6 +129,37 @@ public class SpuManageServiceImpl implements SpuManageService {
     @Override
     public List<SpuSaleAttr> getSpuSaleAttrList(Long spuId) {
         return spuSaleAttrMapper.getSpuSaleAttrList(spuId);
+    }
+
+    @Override
+    public SpuInfo getSpuInfo(Long spuId) {
+        SpuInfo spuInfo = spuInfoMapper.selectById(spuId);
+        // spu_image spu_id
+        QueryWrapper<SpuImage> spuImageQueryWrapper = new QueryWrapper<>();
+        spuImageQueryWrapper.eq("spu_id", spuId);
+        List<SpuImage> spuImageList = spuImageMapper.selectList(spuImageQueryWrapper);
+        spuInfo.setSpuImageList(spuImageList);
+        // spu_poster spu_id
+        QueryWrapper<SpuPoster> spuPosterQueryWrapper = new QueryWrapper<>();
+        spuPosterQueryWrapper.eq("spu_id", spuId);
+        List<SpuPoster> spuPosterList = spuPosterMapper.selectList(spuPosterQueryWrapper);
+        spuInfo.setSpuPosterList(spuPosterList);
+        // spu_sale_attr spu_sale_attr_value
+        List<SpuSaleAttr> spuSaleAttrList = this.getSpuSaleAttrList(spuId);
+        spuInfo.setSpuSaleAttrList(spuSaleAttrList);
+        return spuInfo;
+    }
+
+    @Override
+    public List<SpuSaleAttr> getSpuSaleAttrListCheckBySku(Long skuId, Long spuId) {
+        return spuSaleAttrMapper.selectSpuSaleAttrListCheckBySku(skuId, spuId);
+    }
+
+    @Override
+    public List<SpuPoster> findSpuPosterBySpuId(Long spuId) {
+        QueryWrapper<SpuPoster> spuInfoQueryWrapper = new QueryWrapper<>();
+        spuInfoQueryWrapper.eq("spu_id", spuId);
+        return spuPosterMapper.selectList(spuInfoQueryWrapper);
     }
 
 }

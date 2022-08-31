@@ -17,7 +17,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
+import java.math.BigDecimal;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * title:
@@ -54,6 +57,41 @@ public class SkuManageServiceImpl implements SkuManageService {
         // 更新销售状态
         skuInfo.setIsSale(0);
         skuInfoMapper.updateById(skuInfo);
+    }
+
+    @Override
+    public SkuInfo getSkuInfo(Long skuId) {
+        SkuInfo skuInfo = skuInfoMapper.selectById(skuId);
+        QueryWrapper<SkuImage> skuImageQueryWrapper = new QueryWrapper<>();
+        skuImageQueryWrapper.eq("sku_id", skuId);
+        List<SkuImage> skuImageList = skuImageMapper.selectList(skuImageQueryWrapper);
+        skuInfo.setSkuImageList(skuImageList);
+        return skuInfo;
+    }
+
+    @Override
+    public BigDecimal getSkuPrice(Long skuId) {
+        QueryWrapper<SkuInfo> skuInfoQueryWrapper = new QueryWrapper<>();
+        skuInfoQueryWrapper.eq("id", skuId);
+        skuInfoQueryWrapper.select("price");
+        SkuInfo skuInfo = skuInfoMapper.selectOne(skuInfoQueryWrapper);
+        if (skuInfo != null) {
+            return skuInfo.getPrice();
+        } else {
+            return new BigDecimal("0");
+        }
+    }
+
+    @Override
+    public Map getSkuValueIdsMap(Long spuId) {
+        HashMap<Object, Object> hashMap = new HashMap<>();
+        List<Map> mapList = skuSaleAttrValueMapper.selectSaleAttrValuesBySpu(spuId);
+        if (!CollectionUtils.isEmpty(mapList)) {
+            mapList.forEach(map -> {
+                hashMap.put(map.get("value_ids"), map.get("sku_id"));
+            });
+        }
+        return hashMap;
     }
 
     @Override

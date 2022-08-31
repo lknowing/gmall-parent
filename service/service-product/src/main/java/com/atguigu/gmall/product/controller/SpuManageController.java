@@ -48,4 +48,18 @@ public class SpuManageController {
         return Result.ok();
     }
 
+    // /admin/product/getSpuInfo/9
+    @GetMapping("getSpuInfo/{spuId}")
+    public Result getSpuInfo(@PathVariable Long spuId) {
+        SpuInfo spuInfo = spuManageService.getSpuInfo(spuId);
+        return Result.ok(spuInfo);
+    }
+
+    //
+    @PostMapping("updateSpuInfo")
+    public Result updateSpuInfo(@RequestBody SpuInfo spuInfo) {
+        spuManageService.saveSpuInfo(spuInfo);
+        return Result.ok();
+    }
+
 }

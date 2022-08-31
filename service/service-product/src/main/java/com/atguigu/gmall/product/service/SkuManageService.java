@@ -4,6 +4,9 @@ import com.atguigu.gmall.model.product.SkuInfo;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 
+import java.math.BigDecimal;
+import java.util.Map;
+
 /**
  * title:
  *
@@ -41,4 +44,26 @@ public interface SkuManageService {
      * @param skuId
      */
     void cancelSale(Long skuId);
+
+    /**
+     * 根据skuId回显数据
+     *
+     * @param skuId
+     * @return
+     */
+    SkuInfo getSkuInfo(Long skuId);
+
+    /**
+     * @param skuId
+     * @return
+     */
+    BigDecimal getSkuPrice(Long skuId);
+
+    /**
+     * 根据spuId获取map集合属性
+     *
+     * @param spuId
+     * @return
+     */
+    Map getSkuValueIdsMap(Long spuId);
 }
