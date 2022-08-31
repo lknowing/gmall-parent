@@ -35,7 +35,7 @@ public class ProductApiController {
     private SpuManageService spuManageService;
 
     // /api/product/inner/getSkuInfo/{skuId}
-    @GetMapping("getSkuInfo/{skuId}")
+    @GetMapping("inner/getSkuInfo/{skuId}")
     public SkuInfo getSkuInfo(@PathVariable Long skuId) {
         return skuManageService.getSkuInfo(skuId);
     }
@@ -64,7 +64,7 @@ public class ProductApiController {
     }
 
     @GetMapping("inner/findSpuPosterBySpuId/{spuId}")
-    public List<SpuPoster> findSpuPosterBySpuId(@PathVariable Long spuId){
+    public List<SpuPoster> getSpuPosterBySpuId(@PathVariable Long spuId){
         return spuManageService.findSpuPosterBySpuId(spuId);
     }
 
