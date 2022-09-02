@@ -4,6 +4,7 @@ import com.atguigu.gmall.common.result.Result;
 import io.minio.*;
 import io.minio.errors.*;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -23,6 +24,7 @@ import java.util.UUID;
  */
 @RestController
 @RequestMapping("admin/product") // /admin/product/fileUpload
+@RefreshScope
 public class FileUploadController {
 
     @Value("${minio.endpointUrl}")

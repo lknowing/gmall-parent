@@ -114,7 +114,7 @@ public class SkuManageServiceImpl implements SkuManageService {
     @Transactional(rollbackFor = Exception.class)
     public void saveSkuInfo(SkuInfo skuInfo) {
         // 修改数据需要判断是否为空，新增不需要
-        if (skuInfo != null) {
+        if (skuInfo.getId() != null) {
             // 修改
             this.skuInfoMapper.updateById(skuInfo);
             // 获取sku_id
