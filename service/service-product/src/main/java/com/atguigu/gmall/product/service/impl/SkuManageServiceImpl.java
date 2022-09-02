@@ -4,10 +4,7 @@ import com.atguigu.gmall.model.product.SkuAttrValue;
 import com.atguigu.gmall.model.product.SkuImage;
 import com.atguigu.gmall.model.product.SkuInfo;
 import com.atguigu.gmall.model.product.SkuSaleAttrValue;
-import com.atguigu.gmall.product.mapper.SkuAttrValueMapper;
-import com.atguigu.gmall.product.mapper.SkuImageMapper;
-import com.atguigu.gmall.product.mapper.SkuInfoMapper;
-import com.atguigu.gmall.product.mapper.SkuSaleAttrValueMapper;
+import com.atguigu.gmall.product.mapper.*;
 import com.atguigu.gmall.product.service.SkuManageService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -43,6 +40,9 @@ public class SkuManageServiceImpl implements SkuManageService {
     @Autowired
     private SkuSaleAttrValueMapper skuSaleAttrValueMapper;
 
+    @Autowired
+    private BaseAttrInfoMapper baseAttrInfoMapper;
+
     @Override
     public void onSale(Long skuId) {
         SkuInfo skuInfo = new SkuInfo(skuId);
@@ -69,6 +69,11 @@ public class SkuManageServiceImpl implements SkuManageService {
         skuInfo.setSkuImageList(skuImageList);
 
         List<SkuAttrValue> skuAttrValueList = skuAttrValueMapper.getSkuAttrValueList(skuId);
+        if (!CollectionUtils.isEmpty(skuAttrValueList)) {
+            skuAttrValueList.forEach(skuAttrValue -> {
+                skuAttrValue.setAttrName(baseAttrInfoMapper.selectById(skuAttrValue.getAttrId()).getAttrName());
+            });
+        }
         skuInfo.setSkuAttrValueList(skuAttrValueList);
 
         List<SkuSaleAttrValue> skuSaleAttrValueList = skuSaleAttrValueMapper.getSkuSaleAttrValueList(skuId);
