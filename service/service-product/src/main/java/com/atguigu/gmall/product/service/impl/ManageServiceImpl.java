@@ -1,5 +1,6 @@
 package com.atguigu.gmall.product.service.impl;
 
+import com.atguigu.gmall.common.cache.GmallCache;
 import com.atguigu.gmall.model.product.*;
 import com.atguigu.gmall.product.mapper.*;
 import com.atguigu.gmall.product.service.ManageService;
@@ -88,6 +89,7 @@ public class ManageServiceImpl implements ManageService {
     }
 
     @Override
+
     public List<BaseAttrValue> getAttrValueList(Long attrId) {
         // wrapper 封装 查询 修改 删除 条件
         QueryWrapper<BaseAttrValue> baseAttrValueQueryWrapper = new QueryWrapper<>();
@@ -108,12 +110,14 @@ public class ManageServiceImpl implements ManageService {
     }
 
     @Override
+    @GmallCache(prefix = "categoryView:")
     public BaseCategoryView getCategoryView(Long category3Id) {
         BaseCategoryView baseCategoryView = baseCategoryViewMapper.selectById(category3Id);
         return baseCategoryView;
     }
 
     @Override
+    @GmallCache(prefix = "attrList:")
     public List<BaseAttrInfo> getAttrList(Long skuId) {
         return baseAttrInfoMapper.selectBaseAttrInfoListBySkuId(skuId);
     }

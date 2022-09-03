@@ -1,5 +1,6 @@
 package com.atguigu.gmall.product.service.impl;
 
+import com.atguigu.gmall.common.cache.GmallCache;
 import com.atguigu.gmall.model.product.*;
 import com.atguigu.gmall.product.mapper.*;
 import com.atguigu.gmall.product.service.SpuManageService;
@@ -151,11 +152,13 @@ public class SpuManageServiceImpl extends ServiceImpl<SpuInfoMapper, SpuInfo> im
     }
 
     @Override
+    @GmallCache(prefix = "spuSaleAttrList:")
     public List<SpuSaleAttr> getSpuSaleAttrListCheckBySku(Long skuId, Long spuId) {
         return spuSaleAttrMapper.selectSpuSaleAttrListCheckBySku(skuId, spuId);
     }
 
     @Override
+    @GmallCache(prefix = "spuPoster:")
     public List<SpuPoster> findSpuPosterBySpuId(Long spuId) {
         QueryWrapper<SpuPoster> spuInfoQueryWrapper = new QueryWrapper<>();
         spuInfoQueryWrapper.eq("spu_id", spuId);
