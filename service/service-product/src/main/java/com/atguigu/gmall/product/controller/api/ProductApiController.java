@@ -1,6 +1,9 @@
 package com.atguigu.gmall.product.controller.api;
 
+import com.alibaba.fastjson.JSONObject;
+import com.atguigu.gmall.common.result.Result;
 import com.atguigu.gmall.model.product.*;
+import com.atguigu.gmall.product.service.BaseTrademarkService;
 import com.atguigu.gmall.product.service.ManageService;
 import com.atguigu.gmall.product.service.SkuManageService;
 import com.atguigu.gmall.product.service.SpuManageService;
@@ -34,6 +37,9 @@ public class ProductApiController {
     @Autowired
     private SpuManageService spuManageService;
 
+    @Autowired
+    private BaseTrademarkService baseTrademarkService;
+
     // /api/product/inner/getSkuInfo/{skuId}
     @GetMapping("inner/getSkuInfo/{skuId}")
     public SkuInfo getSkuInfo(@PathVariable Long skuId) {
@@ -59,18 +65,34 @@ public class ProductApiController {
     }
 
     @GetMapping("inner/getSkuValueIdsMap/{spuId}")
-    public Map getSkuValueIdsMap(@PathVariable Long spuId){
+    public Map getSkuValueIdsMap(@PathVariable Long spuId) {
         return skuManageService.getSkuValueIdsMap(spuId);
     }
 
     @GetMapping("inner/findSpuPosterBySpuId/{spuId}")
-    public List<SpuPoster> getSpuPosterBySpuId(@PathVariable Long spuId){
+    public List<SpuPoster> getSpuPosterBySpuId(@PathVariable Long spuId) {
         return spuManageService.findSpuPosterBySpuId(spuId);
     }
 
     @GetMapping("inner/getAttrList/{skuId}")
-    public List<BaseAttrInfo> getAttrList(@PathVariable Long skuId){
+    public List<BaseAttrInfo> getAttrList(@PathVariable Long skuId) {
         return manageService.getAttrList(skuId);
+    }
+
+    /**
+     * 获取全部分类信息
+     *
+     * @return
+     */
+    @GetMapping("getBaseCategoryList")
+    public Result getBaseCategoryList() {
+        List<JSONObject> list = manageService.getBaseCategoryList();
+        return Result.ok(list);
+    }
+
+    @GetMapping("inner/getTrademark/{tmId}")
+    public BaseTrademark getTrademark(@PathVariable Long tmId) {
+        return baseTrademarkService.getById(tmId);
     }
 
 }
