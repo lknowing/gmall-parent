@@ -1,6 +1,7 @@
 package com.atguigu.gmall.item.service.impl;
 
 import com.alibaba.fastjson.JSON;
+import com.atguigu.gmall.client.ListFeignClient;
 import com.atguigu.gmall.common.constant.RedisConst;
 import com.atguigu.gmall.item.service.ItemService;
 import com.atguigu.gmall.model.product.*;
@@ -39,16 +40,19 @@ public class ItemServiceImpl implements ItemService {
     @Autowired
     private ThreadPoolExecutor threadPoolExecutor;
 
+    @Autowired
+    private ListFeignClient listFeignClient;
+
     @Override
     public Map<String, Object> getItem(Long skuId) {
         // 声明返回数据 map集合
         HashMap<String, Object> map = new HashMap<>();
-        //添加布隆过滤
-        RBloomFilter<Object> bloomFilter = redissonClient.getBloomFilter(RedisConst.SKU_BLOOM_FILTER);
-        boolean contains = bloomFilter.contains(skuId);
-        if (!contains) {
-            return null;
-        }
+        //        //添加布隆过滤
+        //        RBloomFilter<Object> bloomFilter = redissonClient.getBloomFilter(RedisConst.SKU_BLOOM_FILTER);
+        //        boolean contains = bloomFilter.contains(skuId);
+        //        if (!contains) {
+        //            return null;
+        //        }
         // 获取商品的基本信息 + 商品图片列表
         CompletableFuture<SkuInfo> skuInfoCompletableFuture = CompletableFuture.supplyAsync(() -> {
             SkuInfo skuInfo = productFeignClient.getSkuInfo(skuId);
@@ -96,6 +100,11 @@ public class ItemServiceImpl implements ItemService {
                 map.put("skuAttrList", skuAttrList);
             }
         }, threadPoolExecutor);
+        // 异步调用热度排名
+        CompletableFuture<Void> hotScoreCompletableFuture = CompletableFuture.runAsync(() -> {
+            listFeignClient.incrHotScore(skuId);
+        }, threadPoolExecutor);
+
         //  key 是谁? 应该是页面渲染时需要的key！
         CompletableFuture.allOf(
                 skuInfoCompletableFuture,
@@ -104,8 +113,10 @@ public class ItemServiceImpl implements ItemService {
                 spuPosterListCompletableFuture,
                 spuSaleAttrListCompletableFuture,
                 valuesSkuJsonCompletableFuture,
-                attrListCompletableFuture
+                attrListCompletableFuture,
+                hotScoreCompletableFuture
         ).join();
+
         return map;
     }
 }

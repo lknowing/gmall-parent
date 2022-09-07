@@ -91,8 +91,8 @@ public interface ProductFeignClient {
     @GetMapping("/api/product/getBaseCategoryList")
     Result getBaseCategoryList();
 
-    @GetMapping("inner/getTrademark/{tmId}")
-    public BaseTrademark getTrademark(@PathVariable Long tmId);
+    @GetMapping("api/product/inner/getTrademark/{tmId}")
+    BaseTrademark getTrademark(@PathVariable Long tmId);
 
 
 }
