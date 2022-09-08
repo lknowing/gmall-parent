@@ -5,11 +5,11 @@ var auth = {
     },
 
     setToken(token) {
-        return $.cookie('token', token, {domain: 'gmall.com', expires: 7, path: '/'})
+        return $.cookie('token', token, {domain: 'gmall.com', expires: 30, path: '/'})
     },
 
     removeToken() {
-        return $.cookie('token', '', {domain: 'gmall.com', expires: 7, path: '/'})
+        return $.cookie('token', '', {domain: 'gmall.com', expires: 30, path: '/'})
     },
 
     isTokenExist() {
@@ -50,11 +50,11 @@ var auth = {
     },
 
     setUserInfo(userInfo) {
-        return $.cookie('userInfo', userInfo, {domain: 'gmall.com', expires: 7, path: '/'})
+        return $.cookie('userInfo', userInfo, {domain: 'gmall.com', expires: 30, path: '/'})
     },
 
     removeUserInfo() {
-        return $.cookie('userInfo', '', {domain: 'gmall.com', expires: 7, path: '/'})
+        return $.cookie('userInfo', '', {domain: 'gmall.com', expires: 30, path: '/'})
     },
 
     isUserInfoExist() {
@@ -70,11 +70,11 @@ var auth = {
     },
 
     setCookie(name, value) {
-        return $.cookie(name, value, {domain: 'gmall.com', expires: 7, path: '/'})
+        return $.cookie(name, value, {domain: 'gmall.com', expires: 30, path: '/'})
     },
 
     removeCookie(name) {
-        return $.cookie(name, '', {domain: 'gmall.com', expires: 7, path: '/'})
+        return $.cookie(name, '', {domain: 'gmall.com', expires: 30, path: '/'})
     },
 
     isExist(name) {
