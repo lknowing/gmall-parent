@@ -66,6 +66,8 @@ public class AuthGlobalFilter implements GlobalFilter {
 
         // 获取到登录的userId，在缓存中获取数据，必须要有token
         String userId = this.getUserId(request);
+        // 获取临时用户Id
+        String userTempId = this.getUserTempId(request);
         // 判断是否是非法登录 ip不一致，上面的获取getUserId方法return "-1";
         if ("-1".equals(userId)) {
             ServerHttpResponse response = exchange.getResponse();
@@ -100,13 +102,32 @@ public class AuthGlobalFilter implements GlobalFilter {
 
         // 将获取到的用户Id 添加到请求头 请求头可能会存有userId
         // 以后使用 AuthContextHolder类获取请求头里面的userId
-        if (!StringUtils.isEmpty(userId)) {
+        if (!StringUtils.isEmpty(userId) || !StringUtils.isEmpty(userTempId)) {
             // 放入请求头
-            request.mutate().header("userId", userId).build();
+            if (!StringUtils.isEmpty(userId)) {
+                request.mutate().header("userId", userId).build();
+            }
+            if (!StringUtils.isEmpty(userTempId)) {
+                request.mutate().header("userTempId", userTempId).build();
+            }
             return chain.filter(exchange.mutate().request(request).build());
         }
-
+        // 默认返回，表示这个过滤器结束了
         return chain.filter(exchange);
+    }
+
+    private String getUserTempId(ServerHttpRequest request) {
+        String userTempId = "";
+        HttpCookie httpCookie = request.getCookies().getFirst("userTempId");
+        if (httpCookie != null) {
+            userTempId = httpCookie.getValue();
+        } else {
+            List<String> stringList = request.getHeaders().get("userTempId");
+            if (!CollectionUtils.isEmpty(stringList)) {
+                userTempId = stringList.get(0);
+            }
+        }
+        return userTempId;
     }
 
     /**
@@ -130,9 +151,9 @@ public class AuthGlobalFilter implements GlobalFilter {
             String string = (String) redisTemplate.opsForValue().get(userLoginKey);
             if (!StringUtils.isEmpty(string)) {
                 JSONObject jsonObject = JSON.parseObject(string);
-                String gatwayIpAddress = IpUtil.getGatwayIpAddress(request);
+                String gatewayIpAddress = IpUtil.getGatwayIpAddress(request);
                 String ip = (String) jsonObject.get("ip");
-                if (gatwayIpAddress.equals(ip)) {
+                if (gatewayIpAddress.equals(ip)) {
                     String userId = (String) jsonObject.get("userId");
                     return userId;
                 } else {

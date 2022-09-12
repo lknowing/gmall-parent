@@ -4,7 +4,7 @@
     <contextName>logback</contextName>
 
     <!-- 日志的输出目录 -->
-    <property name="log.path" value="D:/logs/gmall/list" />
+    <property name="log.path" value="D:/logs/gmall/user" />
 
     <!--控制台日志格式：彩色日志-->
     <!-- magenta:洋红 -->
