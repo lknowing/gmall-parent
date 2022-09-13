@@ -3,12 +3,14 @@ package com.atguigu.gmall.order.controller;
 import com.atguigu.gmall.cart.client.CartFeignClient;
 import com.atguigu.gmall.common.result.Result;
 import com.atguigu.gmall.common.util.AuthContextHolder;
+import com.atguigu.gmall.common.util.HttpClientUtil;
 import com.atguigu.gmall.model.cart.CartInfo;
 import com.atguigu.gmall.model.order.OrderDetail;
 import com.atguigu.gmall.model.order.OrderInfo;
 import com.atguigu.gmall.model.user.UserAddress;
 import com.atguigu.gmall.order.service.OrderService;
 import com.atguigu.gmall.user.client.UserFeignClient;
+import com.sun.org.apache.xpath.internal.operations.Bool;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -85,6 +87,16 @@ public class OrderApiController {
             return Result.fail().message("不能重复提交订单!");
         }
         orderInfo.setUserId(Long.parseLong(userId));
+        // 在此需要校验库存
+        List<OrderDetail> orderDetailList = orderInfo.getOrderDetailList();
+        for (OrderDetail orderDetail : orderDetailList) {
+            Long skuId = orderDetail.getSkuId();
+            Integer num = orderDetail.getSkuNum();
+            Boolean exist = this.orderService.checkStock(skuId, num);
+            if (!exist) {
+                return Result.fail().message(skuId + "库存不足!");
+            }
+        }
         Long orderId = this.orderService.saveOrderInfo(orderInfo);
         // 删除流水号
         this.orderService.delTradeNo(userId);

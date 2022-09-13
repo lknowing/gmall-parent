@@ -7,6 +7,7 @@ import com.atguigu.gmall.common.result.ResultCodeEnum;
 import com.atguigu.gmall.common.util.IpUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.core.io.buffer.DataBuffer;
@@ -34,6 +35,7 @@ import java.util.List;
  * @FileName: AuthGlobalFilter
  */
 @Component
+@RefreshScope
 public class AuthGlobalFilter implements GlobalFilter {
     /*
     authUrls:

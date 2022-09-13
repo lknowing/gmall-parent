@@ -41,4 +41,13 @@ public interface OrderService {
      * @param userId
      */
     void delTradeNo(String userId);
+
+    /**
+     * 校验库存系统
+     *
+     * @param skuId
+     * @param num
+     * @return
+     */
+    Boolean checkStock(Long skuId, Integer num);
 }

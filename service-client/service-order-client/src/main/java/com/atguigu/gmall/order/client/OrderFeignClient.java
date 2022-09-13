@@ -17,6 +17,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 @Repository
 public interface OrderFeignClient {
     // request是用来获取userId 但是通过Feign远程调用的时候，不会携带头文件的信息
-    @GetMapping("auth/trade")
+    @GetMapping("api/order/auth/trade")
     Result trade();
 }

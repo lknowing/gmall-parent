@@ -19,6 +19,6 @@ import java.util.List;
 @FeignClient(value = "service-cart", fallback = CartDegradeFeignClient.class)
 @Repository
 public interface CartFeignClient {
-    @GetMapping("getCartCheckedList/{userId}")
+    @GetMapping("api/cart/getCartCheckedList/{userId}")
     List<CartInfo> getCartCheckedList(@PathVariable String userId);
 }

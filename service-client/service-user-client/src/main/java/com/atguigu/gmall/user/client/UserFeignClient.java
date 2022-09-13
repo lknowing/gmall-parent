@@ -19,7 +19,7 @@ import java.util.List;
 @FeignClient(value = "service-user", fallback = UserDegradeFeignClient.class)
 @Repository
 public interface UserFeignClient {
-    @RequestMapping("inner/findUserAddressListByUserId/{userId}")
+    @RequestMapping("api/user/inner/findUserAddressListByUserId/{userId}")
     List<UserAddress> findUserAddressListByUserId(@PathVariable String userId);
 
 

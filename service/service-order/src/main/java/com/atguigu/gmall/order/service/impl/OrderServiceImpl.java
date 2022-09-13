@@ -1,5 +1,6 @@
 package com.atguigu.gmall.order.service.impl;
 
+import com.atguigu.gmall.common.util.HttpClientUtil;
 import com.atguigu.gmall.model.enums.OrderStatus;
 import com.atguigu.gmall.model.enums.ProcessStatus;
 import com.atguigu.gmall.model.order.OrderDetail;
@@ -8,6 +9,8 @@ import com.atguigu.gmall.order.mapper.OrderDetailMapper;
 import com.atguigu.gmall.order.mapper.OrderInfoMapper;
 import com.atguigu.gmall.order.service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,7 +26,11 @@ import java.util.*;
  * @FileName: OrderServiceImpl
  */
 @Service
+@RefreshScope
 public class OrderServiceImpl implements OrderService {
+    @Value("${ware.url}")
+    private String wareUrl;
+
     @Autowired
     private OrderInfoMapper orderInfoMapper;
 
@@ -53,6 +60,12 @@ public class OrderServiceImpl implements OrderService {
     public void delTradeNo(String userId) {
         String tradeKey = "tradeNo:" + userId;
         this.redisTemplate.delete(tradeKey);
+    }
+
+    @Override
+    public Boolean checkStock(Long skuId, Integer num) {
+        String res = HttpClientUtil.doGet(wareUrl + "/hasStock?skuId=" + skuId + "&num=" + num);
+        return "1".equals(res);
     }
 
     @Override
