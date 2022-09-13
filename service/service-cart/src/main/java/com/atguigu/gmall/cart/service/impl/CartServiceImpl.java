@@ -17,6 +17,8 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * title:
@@ -165,6 +167,16 @@ public class CartServiceImpl implements CartService {
     public void deleteCart(Long skuId, String userId) {
         // hdel key field
         this.redisTemplate.opsForHash().delete(this.getCartKey(userId), skuId.toString());
+    }
+
+    @Override
+    public List<CartInfo> getCartCheckedList(String userId) {
+        String cartKey = this.getCartKey(userId);
+        List<CartInfo> cartInfoList = this.redisTemplate.opsForHash().values(cartKey);
+        List<CartInfo> cartInfoCheckedList = cartInfoList.stream().filter(cartInfo -> {
+            return cartInfo.getIsChecked() == 1;
+        }).collect(Collectors.toList());
+        return cartInfoCheckedList;
     }
 
 }

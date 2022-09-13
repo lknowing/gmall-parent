@@ -22,4 +22,6 @@ public interface CartService {
     void checkCart(Long skuId, String userId, Integer isChecked);
 
     void deleteCart(Long skuId, String userId);
+
+    List<CartInfo> getCartCheckedList(String userId);
 }

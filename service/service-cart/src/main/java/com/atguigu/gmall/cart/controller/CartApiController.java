@@ -47,6 +47,7 @@ public class CartApiController {
         // 获取一个临时用户Id
         String userTempId = AuthContextHolder.getUserTempId(request);
         List<CartInfo> cartInfoList = cartService.getCartList(userId, userTempId);
+
         return Result.ok(cartInfoList);
     }
 
@@ -77,6 +78,11 @@ public class CartApiController {
         }
         cartService.deleteCart(skuId, userId);
         return Result.ok();
+    }
+
+    @GetMapping("getCartCheckedList/{userId}")
+    public List<CartInfo> getCartCheckedList(@PathVariable String userId) {
+        return this.cartService.getCartCheckedList(userId);
     }
 
 }
