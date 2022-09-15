@@ -8,6 +8,8 @@ import com.atguigu.gmall.model.order.OrderInfo;
 import com.atguigu.gmall.order.mapper.OrderDetailMapper;
 import com.atguigu.gmall.order.mapper.OrderInfoMapper;
 import com.atguigu.gmall.order.service.OrderService;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
@@ -66,6 +68,17 @@ public class OrderServiceImpl implements OrderService {
     public Boolean checkStock(Long skuId, Integer num) {
         String res = HttpClientUtil.doGet(wareUrl + "/hasStock?skuId=" + skuId + "&num=" + num);
         return "1".equals(res);
+    }
+
+    @Override
+    public IPage<OrderInfo> getOrderPageList(Page<OrderInfo> orderInfoPage, String userId) {
+        // orderInfo orderDetail
+        IPage<OrderInfo> orderInfoIPage = orderInfoMapper.selectMyOrder(orderInfoPage, userId);
+        orderInfoIPage.getRecords().forEach(orderInfo -> {
+            String statusName = OrderStatus.getStatusNameByStatus(orderInfo.getOrderStatus());
+            orderInfo.setOrderStatusName(statusName);
+        });
+        return orderInfoIPage;
     }
 
     @Override

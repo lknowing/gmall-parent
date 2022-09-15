@@ -1,4 +1,4 @@
-package com.atguigu.gmall.item.config;
+package com.atguigu.gmall.order.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;

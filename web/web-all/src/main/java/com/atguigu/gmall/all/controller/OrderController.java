@@ -30,4 +30,10 @@ public class OrderController {
         return "order/trade";
     }
 
+    @GetMapping("myOrder.html")
+    public String myOrder() {
+
+        return "order/myOrder";
+    }
+
 }
