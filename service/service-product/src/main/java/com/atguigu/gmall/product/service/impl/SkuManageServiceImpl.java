@@ -1,7 +1,9 @@
 package com.atguigu.gmall.product.service.impl;
 
 import com.atguigu.gmall.common.cache.GmallCache;
+import com.atguigu.gmall.common.constant.MqConst;
 import com.atguigu.gmall.common.constant.RedisConst;
+import com.atguigu.gmall.common.service.RabbitService;
 import com.atguigu.gmall.model.product.SkuAttrValue;
 import com.atguigu.gmall.model.product.SkuImage;
 import com.atguigu.gmall.model.product.SkuInfo;
@@ -16,6 +18,7 @@ import org.redisson.api.RBloomFilter;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
 import org.redisson.client.RedisClient;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
@@ -57,12 +60,18 @@ public class SkuManageServiceImpl implements SkuManageService {
     @Autowired
     private RedissonClient redissonClient;
 
+    @Autowired
+    private RabbitService rabbitService;
+
     @Override
     public void onSale(Long skuId) {
         SkuInfo skuInfo = new SkuInfo(skuId);
         // 更新销售状态
         skuInfo.setIsSale(1);
         skuInfoMapper.updateById(skuInfo);
+        // 给list模块发送上架消息
+        rabbitService.sendMsg(MqConst.EXCHANGE_DIRECT_GOODS,
+                MqConst.ROUTING_GOODS_UPPER, skuId);
     }
 
     @Override
@@ -71,6 +80,9 @@ public class SkuManageServiceImpl implements SkuManageService {
         // 更新销售状态
         skuInfo.setIsSale(0);
         skuInfoMapper.updateById(skuInfo);
+        // 发送下架消息
+        rabbitService.sendMsg(MqConst.EXCHANGE_DIRECT_GOODS,
+                MqConst.ROUTING_GOODS_LOWER, skuId);
     }
 
     @Override
