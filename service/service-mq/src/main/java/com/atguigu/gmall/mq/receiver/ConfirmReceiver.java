@@ -1,5 +1,7 @@
 package com.atguigu.gmall.mq.receiver;
 
+import com.atguigu.gmall.mq.config.DeadLetterMqConfig;
+import com.atguigu.gmall.mq.config.DelayedMqConfig;
 import com.rabbitmq.client.Channel;
 import lombok.SneakyThrows;
 import org.springframework.amqp.core.Message;
@@ -7,7 +9,13 @@ import org.springframework.amqp.rabbit.annotation.Exchange;
 import org.springframework.amqp.rabbit.annotation.Queue;
 import org.springframework.amqp.rabbit.annotation.QueueBinding;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
 /**
  * title:
@@ -18,6 +26,9 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class ConfirmReceiver {
+    @Autowired
+    private RedisTemplate redisTemplate;
+
     // 使用注解进行监听：将交换机及队列都会初始化！
     @SneakyThrows
     @RabbitListener(bindings = @QueueBinding(
@@ -43,4 +54,37 @@ public class ConfirmReceiver {
         // 第一个参数表示消息标签； 第二个参数表示是否批量签收！
         channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
     }
+
+    @SneakyThrows
+    @RabbitListener(queues = DeadLetterMqConfig.queue_dead_2)
+    public void getMsg2(String msg, Message message, Channel channel) {
+        try {
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            System.out.println("Receive queue_dead_2: " + sdf.format(new Date()) + " Delay rece." + msg);
+        } catch (Exception e) {
+            // 只要有异常！直接进入消息记录表！
+            e.printStackTrace();
+        }
+        channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
+    }
+
+    @SneakyThrows
+    @RabbitListener(queues = DelayedMqConfig.queue_delay_1)
+    public void getMsg3(String msg, Message message, Channel channel) {
+        Boolean result = redisTemplate.opsForValue().setIfAbsent("lock", "0", 1, TimeUnit.MINUTES);
+        if (!result) {
+            channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
+            return;
+        }
+        try {
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            System.out.println("Receive queue_dead_2: " + sdf.format(new Date()) + " Delay rece." + msg);
+        } catch (Exception e) {
+            redisTemplate.delete("lock");
+            e.printStackTrace();
+        }
+        // 只要有异常！直接进入消息记录表！
+        channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
+    }
+
 }

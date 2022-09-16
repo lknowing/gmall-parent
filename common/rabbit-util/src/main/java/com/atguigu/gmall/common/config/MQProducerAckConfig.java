@@ -60,6 +60,10 @@ public class MQProducerAckConfig implements RabbitTemplate.ConfirmCallback, Rabb
         System.out.println("消息使用的交换器 exchange : " + exchange);
         System.out.println("消息使用的路由键 routing : " + routingKey);
 
+        // 如果是属于插件实现的延迟消息，则不需要重试！
+        //        if ("exchange.delay".equals(exchange) && "routing.delay".equals(routingKey)) {
+        //            return;
+        //        }
         String correlationDataId = (String) message.getMessageProperties().getHeaders().get("spring_returned_message_correlation");
         String strJson = (String) redisTemplate.opsForValue().get(correlationDataId);
         GmallCorrelationData gmallCorrelationData = JSON.parseObject(strJson, GmallCorrelationData.class);
@@ -84,11 +88,24 @@ public class MQProducerAckConfig implements RabbitTemplate.ConfirmCallback, Rabb
             // 更新缓存中的已重试次数
             redisTemplate.opsForValue().set(gmallCorrelationData.getId(),
                     JSON.toJSONString(gmallCorrelationData), 2, TimeUnit.MINUTES);
-            // 调用发送消息方法--普通方法
-            rabbitTemplate.convertAndSend(gmallCorrelationData.getExchange(),
-                    gmallCorrelationData.getRoutingKey(),
-                    gmallCorrelationData.getMessage(),
-                    gmallCorrelationData);
+            // 判断消息的类型
+            if (gmallCorrelationData.isDelay()) {
+                // 发送一个延迟消息！
+                rabbitTemplate.convertAndSend(gmallCorrelationData.getExchange(),
+                        gmallCorrelationData.getRoutingKey(),
+                        gmallCorrelationData.getMessage(),
+                        (message) -> {
+                            // 设置延迟时间！
+                            message.getMessageProperties().setDelay(gmallCorrelationData.getDelayTime() * 1000);
+                            return message;
+                        }, gmallCorrelationData);
+            } else {
+                // 调用发送消息方法--普通方法
+                rabbitTemplate.convertAndSend(gmallCorrelationData.getExchange(),
+                        gmallCorrelationData.getRoutingKey(),
+                        gmallCorrelationData.getMessage(),
+                        gmallCorrelationData);
+            }
         }
     }
 }

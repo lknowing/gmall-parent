@@ -3,6 +3,7 @@ package com.atguigu.gmall.order.service;
 import com.atguigu.gmall.model.order.OrderInfo;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.baomidou.mybatisplus.extension.service.IService;
 
 /**
  * title:
@@ -11,7 +12,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
  * @Date 2022/09/13 13:44
  * @FileName: OrderSerice
  */
-public interface OrderService {
+public interface OrderService extends IService<OrderInfo> {
     /**
      * 保存订单并返回订单Id
      *
@@ -61,4 +62,11 @@ public interface OrderService {
      * @return
      */
     IPage<OrderInfo> getOrderPageList(Page<OrderInfo> orderInfoPage, String userId);
+
+    /**
+     * 取消订单
+     *
+     * @param orderId
+     */
+    void execExpiredOrder(Long orderId);
 }

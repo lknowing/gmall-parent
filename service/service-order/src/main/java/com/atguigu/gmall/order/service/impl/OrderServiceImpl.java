@@ -1,5 +1,7 @@
 package com.atguigu.gmall.order.service.impl;
 
+import com.atguigu.gmall.common.constant.MqConst;
+import com.atguigu.gmall.common.service.RabbitService;
 import com.atguigu.gmall.common.util.HttpClientUtil;
 import com.atguigu.gmall.model.enums.OrderStatus;
 import com.atguigu.gmall.model.enums.ProcessStatus;
@@ -10,6 +12,7 @@ import com.atguigu.gmall.order.mapper.OrderInfoMapper;
 import com.atguigu.gmall.order.service.OrderService;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
@@ -29,7 +32,7 @@ import java.util.*;
  */
 @Service
 @RefreshScope
-public class OrderServiceImpl implements OrderService {
+public class OrderServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo> implements OrderService {
     @Value("${ware.url}")
     private String wareUrl;
 
@@ -41,6 +44,9 @@ public class OrderServiceImpl implements OrderService {
 
     @Autowired
     private RedisTemplate redisTemplate;
+
+    @Autowired
+    private RabbitService rabbitService;
 
     @Override
     public String getTradeNo(String userId) {
@@ -82,6 +88,27 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
+    public void execExpiredOrder(Long orderId) {
+        // 取消订单，本质就是修改订单状态！
+        this.updateOrderStatus(orderId, ProcessStatus.CLOSED);
+    }
+
+    /**
+     * 根据订单Id修改订单状态
+     *
+     * @param orderId
+     * @param processStatus
+     */
+    private void updateOrderStatus(Long orderId, ProcessStatus processStatus) {
+        OrderInfo orderInfo = new OrderInfo();
+        orderInfo.setId(orderId);
+        orderInfo.setOrderStatus(processStatus.getOrderStatus().name());
+        orderInfo.setProcessStatus(processStatus.name());
+        orderInfo.setUpdateTime(new Date());
+        this.orderInfoMapper.updateById(orderInfo);
+    }
+
+    @Override
     @Transactional(rollbackFor = Exception.class)
     public Long saveOrderInfo(OrderInfo orderInfo) {
         // total_amount user_id
@@ -113,6 +140,11 @@ public class OrderServiceImpl implements OrderService {
                 orderDetailMapper.insert(orderDetail);
             }
         }
+        // 发送一个延迟消息
+        this.rabbitService.sendDelayMsg(MqConst.EXCHANGE_DIRECT_ORDER_CANCEL,
+                MqConst.ROUTING_ORDER_CANCEL,
+                orderId,
+                MqConst.DELAY_TIME);
         return orderId;
     }
 }
