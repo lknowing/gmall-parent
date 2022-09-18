@@ -173,4 +173,9 @@ public class OrderApiController {
         IPage<OrderInfo> orderPageList = this.orderService.getOrderPageList(orderInfoPage, userId);
         return Result.ok(orderPageList);
     }
+
+    @GetMapping("inner/getOrderInfo/{orderId}")
+    public OrderInfo getOrderInfo(@PathVariable Long orderId) {
+        return orderService.getOrderInfo(orderId);
+    }
 }

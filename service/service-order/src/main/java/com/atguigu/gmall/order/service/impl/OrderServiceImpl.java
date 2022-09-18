@@ -10,6 +10,7 @@ import com.atguigu.gmall.model.order.OrderInfo;
 import com.atguigu.gmall.order.mapper.OrderDetailMapper;
 import com.atguigu.gmall.order.mapper.OrderInfoMapper;
 import com.atguigu.gmall.order.service.OrderService;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -91,6 +92,18 @@ public class OrderServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo> im
     public void execExpiredOrder(Long orderId) {
         // 取消订单，本质就是修改订单状态！
         this.updateOrderStatus(orderId, ProcessStatus.CLOSED);
+    }
+
+    @Override
+    public OrderInfo getOrderInfo(Long orderId) {
+        OrderInfo orderInfo = orderInfoMapper.selectById(orderId);
+        if (orderInfo != null) {
+            QueryWrapper<OrderDetail> orderDetailQueryWrapper = new QueryWrapper<>();
+            orderDetailQueryWrapper.eq("order_id", orderId);
+            List<OrderDetail> orderDetails = orderDetailMapper.selectList(orderDetailQueryWrapper);
+            orderInfo.setOrderDetailList(orderDetails);
+        }
+        return orderInfo;
     }
 
     /**
