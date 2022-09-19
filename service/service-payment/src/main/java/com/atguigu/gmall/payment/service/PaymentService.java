@@ -38,4 +38,8 @@ public interface PaymentService {
      * @param paramsMap
      */
     void paySuccess(String outTradeNo, String paymentType, Map<String, String> paramsMap);
+
+    void updatePaymentInfoStatus(String outTradeNo, String paymentType, PaymentInfo paymentInfo);
+
+    void closePayment(Long orderId);
 }

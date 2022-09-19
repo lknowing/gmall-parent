@@ -3,11 +3,20 @@ package com.atguigu.gmall.payment.service.impl;
 import com.alibaba.fastjson.JSONObject;
 import com.alipay.api.AlipayApiException;
 import com.alipay.api.AlipayClient;
+import com.alipay.api.request.AlipayTradeCloseRequest;
 import com.alipay.api.request.AlipayTradePagePayRequest;
+import com.alipay.api.request.AlipayTradeQueryRequest;
+import com.alipay.api.request.AlipayTradeRefundRequest;
+import com.alipay.api.response.AlipayTradeCloseResponse;
+import com.alipay.api.response.AlipayTradeQueryResponse;
+import com.alipay.api.response.AlipayTradeRefundResponse;
+import com.atguigu.gmall.model.enums.PaymentStatus;
 import com.atguigu.gmall.model.enums.PaymentType;
 import com.atguigu.gmall.model.order.OrderInfo;
+import com.atguigu.gmall.model.payment.PaymentInfo;
 import com.atguigu.gmall.order.client.OrderFeignClient;
 import com.atguigu.gmall.payment.config.AlipayConfig;
+import com.atguigu.gmall.payment.mapper.PaymentInfoMapper;
 import com.atguigu.gmall.payment.service.AlipayService;
 import com.atguigu.gmall.payment.service.PaymentService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +24,7 @@ import org.springframework.stereotype.Service;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 
 /**
  * title:
@@ -33,6 +43,9 @@ public class AlipayServiceImpl implements AlipayService {
 
     @Autowired
     private PaymentService paymentService;
+
+    @Autowired
+    private PaymentInfoMapper paymentInfoMapper;
 
     @Override
     public String createAliPay(Long orderId) {
@@ -67,5 +80,93 @@ public class AlipayServiceImpl implements AlipayService {
         }
         // 返回数据
         return form;
+    }
+
+    @Override
+    public Boolean refund(Long orderId) {
+        // 根据orderId获取订单
+        OrderInfo orderInfo = orderFeignClient.getOrderInfo(orderId);
+        // 添加状态判断
+        //        if ("CLOSED".equals(orderInfo.getOrderStatus())) {
+        //            return false;
+        //        }
+        //AlipayClient alipayClient = new DefaultAlipayClient("https://openapi.alipay.com/gateway.do", "app_id", "your private_key", "json", "GBK", "alipay_public_key", "RSA2");
+        AlipayTradeRefundRequest request = new AlipayTradeRefundRequest();
+        JSONObject bizContent = new JSONObject();
+        bizContent.put("out_trade_no", orderInfo.getOutTradeNo());
+        //bizContent.put("trade_no", "2021081722001419121412730660");
+        bizContent.put("refund_amount", 0.01);
+        bizContent.put("refund_reason", "太贵了！");
+        //bizContent.put("out_request_no", "HZ01RF001");// 部分退款使用
+
+        request.setBizContent(bizContent.toString());
+        AlipayTradeRefundResponse response = null;
+        try {
+            response = alipayClient.execute(request);
+        } catch (AlipayApiException e) {
+            e.printStackTrace();
+        }
+        if (response.isSuccess()) {
+            if (response.getFundChange().equals("Y")) {
+                // 修改交易状态
+                PaymentInfo paymentInfo = new PaymentInfo();
+                paymentInfo.setPaymentStatus(PaymentStatus.CLOSED.name());
+                paymentInfo.setUpdateTime(new Date());
+                paymentService.updatePaymentInfoStatus(orderInfo.getOutTradeNo(), PaymentType.ALIPAY.name(), paymentInfo);
+                System.out.println("调用成功");
+                return true;
+            }
+            return false;
+        } else {
+            System.out.println("调用失败");
+            return false;
+        }
+    }
+
+    @Override
+    public Boolean closePay(Long orderId) {
+        OrderInfo orderInfo = this.orderFeignClient.getOrderInfo(orderId);
+        // AlipayClient alipayClient = new DefaultAlipayClient("https://openapi.alipay.com/gateway.do","app_id","your private_key","json","GBK","alipay_public_key","RSA2");
+        AlipayTradeCloseRequest request = new AlipayTradeCloseRequest();
+        JSONObject bizContent = new JSONObject();
+        bizContent.put("out_trade_no", orderInfo.getOutTradeNo());
+        request.setBizContent(bizContent.toString());
+        AlipayTradeCloseResponse response = null;
+        try {
+            response = alipayClient.execute(request);
+        } catch (AlipayApiException e) {
+            e.printStackTrace();
+        }
+        if (response.isSuccess()) {
+            System.out.println("调用成功");
+            return true;
+        } else {
+            System.out.println("调用失败");
+            return false;
+        }
+    }
+
+    @Override
+    public Boolean checkPayment(Long orderId) {
+        OrderInfo orderInfo = this.orderFeignClient.getOrderInfo(orderId);
+        // AlipayClient alipayClient = new DefaultAlipayClient("https://openapi.alipay.com/gateway.do","app_id","your private_key","json","GBK","alipay_public_key","RSA2");
+        AlipayTradeQueryRequest request = new AlipayTradeQueryRequest();
+        JSONObject bizContent = new JSONObject();
+        bizContent.put("out_trade_no", orderInfo.getOutTradeNo());
+        //bizContent.put("trade_no", "2014112611001004680073956707");
+        request.setBizContent(bizContent.toString());
+        AlipayTradeQueryResponse response = null;
+        try {
+            response = alipayClient.execute(request);
+        } catch (AlipayApiException e) {
+            e.printStackTrace();
+        }
+        if (response.isSuccess()) {
+            System.out.println("调用成功");
+            return true;
+        } else {
+            System.out.println("调用失败");
+            return false;
+        }
     }
 }

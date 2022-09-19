@@ -1,9 +1,13 @@
 package com.atguigu.gmall.order.service;
 
+import com.atguigu.gmall.model.enums.ProcessStatus;
 import com.atguigu.gmall.model.order.OrderInfo;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
+
+import java.util.List;
+import java.util.Map;
 
 /**
  * title:
@@ -78,4 +82,11 @@ public interface OrderService extends IService<OrderInfo> {
      */
     OrderInfo getOrderInfo(Long orderId);
 
+    void updateOrderStatus(Long orderId, ProcessStatus processStatus);
+
+    void sendOrderMsg(Long orderId);
+
+    Map wareJson(OrderInfo orderInfo);
+
+    List<OrderInfo> orderSplit(String orderId, String wareSkuMap);
 }

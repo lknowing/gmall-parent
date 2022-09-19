@@ -2,6 +2,7 @@ package com.atguigu.gmall.payment.controller;
 
 import com.alipay.api.AlipayApiException;
 import com.alipay.api.internal.util.AlipaySignature;
+import com.atguigu.gmall.common.result.Result;
 import com.atguigu.gmall.model.enums.PaymentType;
 import com.atguigu.gmall.model.payment.PaymentInfo;
 import com.atguigu.gmall.payment.config.AlipayConfig;
@@ -88,4 +89,36 @@ public class AlipayController {
         }
         return "failure";
     }
+
+    @RequestMapping("refund/{orderId}")
+    @ResponseBody
+    public Result refund(@PathVariable Long orderId) {
+        Boolean flag = alipayService.refund(orderId);
+        return Result.ok(flag);
+    }
+
+    // 根据订单Id关闭订单
+    @GetMapping("closePay/{orderId}")
+    @ResponseBody
+    public Boolean closePay(@PathVariable Long orderId) {
+        return alipayService.closePay(orderId);
+    }
+
+    // 查看是否有交易记录
+    @GetMapping("checkPayment/{orderId}")
+    @ResponseBody
+    public Boolean checkPayment(@PathVariable Long orderId) {
+        return alipayService.checkPayment(orderId);
+    }
+
+    @GetMapping("getPaymentInfo/{outTradeNo}")
+    @ResponseBody
+    public PaymentInfo getPaymentInfo(@PathVariable String outTradeNo) {
+        PaymentInfo paymentInfo = paymentService.getPaymentInfo(outTradeNo, PaymentType.ALIPAY.name());
+        if (null != paymentInfo) {
+            return paymentInfo;
+        }
+        return null;
+    }
+
 }

@@ -24,6 +24,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -177,5 +178,20 @@ public class OrderApiController {
     @GetMapping("inner/getOrderInfo/{orderId}")
     public OrderInfo getOrderInfo(@PathVariable Long orderId) {
         return orderService.getOrderInfo(orderId);
+    }
+
+    @PostMapping("orderSplit")
+    public List<Map> orderSplit(HttpServletRequest request) {
+        String orderId = request.getParameter("orderId");
+        String wareSkuMap = request.getParameter("wareSkuMap");
+
+        List<OrderInfo> orderInfoList = orderService.orderSplit(orderId, wareSkuMap);
+
+        List<Map> mapList = orderInfoList.stream().map(orderInfo -> {
+            Map map = orderService.wareJson(orderInfo);
+            return map;
+        }).collect(Collectors.toList());
+
+        return mapList;
     }
 }
