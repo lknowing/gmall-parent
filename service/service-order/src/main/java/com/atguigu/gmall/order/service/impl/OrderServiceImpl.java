@@ -102,6 +102,19 @@ public class OrderServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo> im
     }
 
     @Override
+    public void execExpiredOrder(Long orderId, String flag) {
+        // 取消订单，本质就是修改订单状态！
+        this.updateOrderStatus(orderId, ProcessStatus.CLOSED);
+
+        if ("1".equals(flag)) {
+            return;
+        }
+        this.rabbitService.sendMsg(MqConst.EXCHANGE_DIRECT_PAYMENT_CLOSE,
+                MqConst.ROUTING_PAYMENT_CLOSE,
+                orderId);
+    }
+
+    @Override
     public OrderInfo getOrderInfo(Long orderId) {
         OrderInfo orderInfo = orderInfoMapper.selectById(orderId);
         if (orderInfo != null) {

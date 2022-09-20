@@ -74,6 +74,8 @@ public interface OrderService extends IService<OrderInfo> {
      */
     void execExpiredOrder(Long orderId);
 
+    void execExpiredOrder(Long orderId,String flag);
+
     /**
      * 根据订单Id 查询订单信息
      *

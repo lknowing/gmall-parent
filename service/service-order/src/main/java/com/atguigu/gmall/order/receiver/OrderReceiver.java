@@ -4,7 +4,9 @@ import com.alibaba.fastjson.JSON;
 import com.atguigu.gmall.common.constant.MqConst;
 import com.atguigu.gmall.model.enums.ProcessStatus;
 import com.atguigu.gmall.model.order.OrderInfo;
+import com.atguigu.gmall.model.payment.PaymentInfo;
 import com.atguigu.gmall.order.service.OrderService;
+import com.atguigu.gmall.payment.client.PaymentFeignClient;
 import com.rabbitmq.client.Channel;
 import lombok.SneakyThrows;
 import org.springframework.amqp.core.Message;
@@ -30,6 +32,9 @@ public class OrderReceiver {
     @Autowired
     private OrderService orderService;
 
+    @Autowired
+    private PaymentFeignClient paymentFeignClient;
+
     @SneakyThrows
     @RabbitListener(queues = MqConst.QUEUE_ORDER_CANCEL)
     public void orderCancel(Long orderId, Message message, Channel channel) {
@@ -37,10 +42,26 @@ public class OrderReceiver {
             if (orderId != null) {
                 OrderInfo orderInfo = orderService.getById(orderId);
                 if (orderInfo != null && "UNPAID".equals(orderInfo.getOrderStatus()) && "UNPAID".equals(orderInfo.getProcessStatus())) {
-                    orderService.execExpiredOrder(orderId);
+                    PaymentInfo paymentInfo = this.paymentFeignClient.getPaymentInfo(orderInfo.getOutTradeNo());
+                    if (paymentInfo != null) {
+                        Boolean scan = this.paymentFeignClient.checkPayment(orderId);
+                        if (scan) {
+                            Boolean closePay = this.paymentFeignClient.closePay(orderId);
+                            if (closePay) {
+                                orderService.execExpiredOrder(orderId, "2");
+                            } else {
+                                // 表示已经扫码付款了，走异步通知修改状态！
+                            }
+                        } else {
+                            orderService.execExpiredOrder(orderId, "2");
+                        }
+                    } else {
+                        orderService.execExpiredOrder(orderId, "1");
+                    }
                 }
             }
         } catch (Exception e) {
+            //  写入日志...
             e.printStackTrace();
         }
         channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
