@@ -8,7 +8,6 @@ import com.atguigu.gmall.model.cart.CartInfo;
 import com.atguigu.gmall.model.order.OrderDetail;
 import com.atguigu.gmall.model.order.OrderInfo;
 import com.atguigu.gmall.model.user.UserAddress;
-import com.atguigu.gmall.order.config.ThreadPoolExecutorConfig;
 import com.atguigu.gmall.order.service.OrderService;
 import com.atguigu.gmall.product.client.ProductFeignClient;
 import com.atguigu.gmall.user.client.UserFeignClient;
@@ -194,4 +193,11 @@ public class OrderApiController {
 
         return mapList;
     }
+
+    @PostMapping("inner/seckill/submitOrder")
+    public Long submitSeckillOrder(@RequestBody OrderInfo orderInfo) {
+        Long orderId = orderService.saveOrderInfo(orderInfo);
+        return orderId;
+    }
+
 }

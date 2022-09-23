@@ -15,6 +15,7 @@ public class DateUtil {
 
     /**
      * 获取两个时间差 单位：秒
+     *
      * @param date1
      * @param date2
      * @return

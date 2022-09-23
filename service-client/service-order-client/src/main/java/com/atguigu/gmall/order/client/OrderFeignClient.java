@@ -7,6 +7,8 @@ import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.stereotype.Repository;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 
 /**
  * title:
@@ -24,4 +26,7 @@ public interface OrderFeignClient {
 
     @GetMapping("/api/order/inner/getOrderInfo/{orderId}")
     OrderInfo getOrderInfo(@PathVariable Long orderId);
+
+    @PostMapping("/api/order/inner/seckill/submitOrder")
+    Long submitSeckillOrder(@RequestBody OrderInfo orderInfo);
 }
